@@ -33,78 +33,81 @@ def serialize_doc(doc: Dict[str, Any]) -> Dict[str, Any]:
     return res
 
 def seed_mongo_if_empty():
-    # 1. Categories
-    if categories_col.count_documents({}) == 0:
-        categories = [
-            {
-                "id": "leave_clarification",
-                "name": "Leave Clarification",
-                "description": "Queries regarding leave balances, eligibility, and policies.",
-                "icon": "calendar",
-                "fields_schema": [
-                    {"name": "leave_type", "label": "Leave Type", "type": "select", "options": ["Annual Leave", "Sick Leave", "Casual Leave", "Maternity/Paternity", "Unpaid Leave"]},
-                    {"name": "query_type", "label": "Topic", "type": "select", "options": ["Balance Discrepancy", "Leave Carry-Forward", "Policy Query", "Rejected Leave"]},
-                    {"name": "date_range", "label": "Affected Dates", "type": "text"}
-                ]
-            },
-            {
-                "id": "payroll_query",
-                "name": "Payroll Query",
-                "description": "Confidential queries regarding salary, taxes, bonuses, or payslips.",
-                "icon": "dollar-sign",
-                "fields_schema": [
-                    {"name": "payroll_topic", "label": "Topic", "type": "select", "options": ["Salary Credit", "TDS Tax Deductions", "Missing Payslip", "Bonus Payout"]},
-                    {"name": "pay_period", "label": "Pay Period (Month/Year)", "type": "text"},
-                    {"name": "disputed_amount", "label": "Disputed Amount (Optional)", "type": "text"}
-                ]
-            },
-            {
-                "id": "experience_letter",
-                "name": "Experience Letter",
-                "description": "Request official company service & experience certificate.",
-                "icon": "award",
-                "fields_schema": [
-                    {"name": "joining_date", "label": "Date of Joining", "type": "date"},
-                    {"name": "purpose", "label": "Intended Purpose", "type": "select", "options": ["Visa / Immigration", "Higher Studies", "Bank Loan", "New Job Transition"]},
-                    {"name": "addressed_to", "label": "Addressed To (Optional)", "type": "text"}
-                ]
-            },
-            {
-                "id": "asset_request",
-                "name": "Asset Request",
-                "description": "Hardware equipment, laptops, 4K monitors, and access badges.",
-                "icon": "laptop",
-                "fields_schema": [
-                    {"name": "asset_type", "label": "Asset Type", "type": "select", "options": ["MacBook Pro / Laptop", "Secondary 4K Monitor", "Keyboard & Mouse", "Building Access Card"]},
-                    {"name": "request_reason", "label": "Reason", "type": "select", "options": ["New Joiner Equipment", "Hardware Upgrade", "Remote Work / WFH Kit"]},
-                    {"name": "delivery_location", "label": "Delivery Location", "type": "select", "options": ["Main Office IT Desk", "Ship to Home Address"]}
-                ]
-            },
-            {
-                "id": "onboarding_request",
-                "name": "Onboarding Request",
-                "description": "New hire credentials, company RFID badge, and starter packages.",
-                "icon": "user-plus",
-                "fields_schema": [
-                    {"name": "joiner_full_name", "label": "New Employee Full Name", "type": "text"},
-                    {"name": "department_assigned", "label": "Department", "type": "select", "options": ["Engineering", "Product Design", "Human Resources", "Marketing", "Finance & Accounts"]},
-                    {"name": "joining_date", "label": "Joining Date", "type": "date"}
-                ]
-            }
-        ]
-        categories_col.insert_many(categories)
+    try:
+        # 1. Categories
+        if categories_col.count_documents({}, maxTimeMS=2000) == 0:
+            categories = [
+                {
+                    "id": "leave_clarification",
+                    "name": "Leave Clarification",
+                    "description": "Queries regarding leave balances, eligibility, and policies.",
+                    "icon": "calendar",
+                    "fields_schema": [
+                        {"name": "leave_type", "label": "Leave Type", "type": "select", "options": ["Annual Leave", "Sick Leave", "Casual Leave", "Maternity/Paternity", "Unpaid Leave"]},
+                        {"name": "query_type", "label": "Topic", "type": "select", "options": ["Balance Discrepancy", "Leave Carry-Forward", "Policy Query", "Rejected Leave"]},
+                        {"name": "date_range", "label": "Affected Dates", "type": "text"}
+                    ]
+                },
+                {
+                    "id": "payroll_query",
+                    "name": "Payroll Query",
+                    "description": "Confidential queries regarding salary, taxes, bonuses, or payslips.",
+                    "icon": "dollar-sign",
+                    "fields_schema": [
+                        {"name": "payroll_topic", "label": "Topic", "type": "select", "options": ["Salary Credit", "TDS Tax Deductions", "Missing Payslip", "Bonus Payout"]},
+                        {"name": "pay_period", "label": "Pay Period (Month/Year)", "type": "text"},
+                        {"name": "disputed_amount", "label": "Disputed Amount (Optional)", "type": "text"}
+                    ]
+                },
+                {
+                    "id": "experience_letter",
+                    "name": "Experience Letter",
+                    "description": "Request official company service & experience certificate.",
+                    "icon": "award",
+                    "fields_schema": [
+                        {"name": "joining_date", "label": "Date of Joining", "type": "date"},
+                        {"name": "purpose", "label": "Intended Purpose", "type": "select", "options": ["Visa / Immigration", "Higher Studies", "Bank Loan", "New Job Transition"]},
+                        {"name": "addressed_to", "label": "Addressed To (Optional)", "type": "text"}
+                    ]
+                },
+                {
+                    "id": "asset_request",
+                    "name": "Asset Request",
+                    "description": "Hardware equipment, laptops, 4K monitors, and access badges.",
+                    "icon": "laptop",
+                    "fields_schema": [
+                        {"name": "asset_type", "label": "Asset Type", "type": "select", "options": ["MacBook Pro / Laptop", "Secondary 4K Monitor", "Keyboard & Mouse", "Building Access Card"]},
+                        {"name": "request_reason", "label": "Reason", "type": "select", "options": ["New Joiner Equipment", "Hardware Upgrade", "Remote Work / WFH Kit"]},
+                        {"name": "delivery_location", "label": "Delivery Location", "type": "select", "options": ["Main Office IT Desk", "Ship to Home Address"]}
+                    ]
+                },
+                {
+                    "id": "onboarding_request",
+                    "name": "Onboarding Request",
+                    "description": "New hire credentials, company RFID badge, and starter packages.",
+                    "icon": "user-plus",
+                    "fields_schema": [
+                        {"name": "joiner_full_name", "label": "New Employee Full Name", "type": "text"},
+                        {"name": "department_assigned", "label": "Department", "type": "select", "options": ["Engineering", "Product Design", "Human Resources", "Marketing", "Finance & Accounts"]},
+                        {"name": "joining_date", "label": "Joining Date", "type": "date"}
+                    ]
+                }
+            ]
+            categories_col.insert_many(categories)
 
-    # 2. Users
-    if users_col.count_documents({}) == 0:
-        users = [
-            {"username": "john.doe", "email": "john.doe@company.com", "password": "emp123", "full_name": "John Doe", "role": "employee", "department": "Engineering"},
-            {"username": "sarah.smith", "email": "sarah.smith@company.com", "password": "emp123", "full_name": "Sarah Smith", "role": "employee", "department": "Marketing"},
-            {"username": "elena.hr", "email": "elena.hr@company.com", "password": "hr123", "full_name": "Elena Rostova", "role": "hr", "department": "Human Resources"},
-            {"username": "david.payroll", "email": "david.payroll@company.com", "password": "payroll123", "full_name": "David Miller", "role": "payroll", "department": "Finance & Payroll"},
-            {"username": "alex.it", "email": "alex.it@company.com", "password": "it123", "full_name": "Alex Rivera", "role": "it", "department": "IT Operations"},
-            {"username": "admin", "email": "admin@company.com", "password": "admin123", "full_name": "Marcus Vance", "role": "admin", "department": "Executive Ops"}
-        ]
-        users_col.insert_many(users)
+        # 2. Users
+        if users_col.count_documents({}, maxTimeMS=2000) == 0:
+            users = [
+                {"username": "john.doe", "email": "john.doe@company.com", "password": "emp123", "full_name": "John Doe", "role": "employee", "department": "Engineering"},
+                {"username": "sarah.smith", "email": "sarah.smith@company.com", "password": "emp123", "full_name": "Sarah Smith", "role": "employee", "department": "Marketing"},
+                {"username": "elena.hr", "email": "elena.hr@company.com", "password": "hr123", "full_name": "Elena Rostova", "role": "hr", "department": "Human Resources"},
+                {"username": "david.payroll", "email": "david.payroll@company.com", "password": "payroll123", "full_name": "David Miller", "role": "payroll", "department": "Finance & Payroll"},
+                {"username": "alex.it", "email": "alex.it@company.com", "password": "it123", "full_name": "Alex Rivera", "role": "it", "department": "IT Operations"},
+                {"username": "admin", "email": "admin@company.com", "password": "admin123", "full_name": "Marcus Vance", "role": "admin", "department": "Executive Ops"}
+            ]
+            users_col.insert_many(users)
+    except Exception as e:
+        print(f"MongoDB Seeding Notice: {e}")
 
 # ----------------- FASTAPI APP -----------------
 app = FastAPI(title="NexusHR — FastAPI MongoDB Backend")
@@ -119,7 +122,10 @@ app.add_middleware(
 
 @app.on_event("startup")
 def startup_db():
-    seed_mongo_if_empty()
+    try:
+        seed_mongo_if_empty()
+    except Exception as e:
+        print(f"Startup MongoDB Notice: {e}")
 
 # ----------------- SCHEMAS -----------------
 class LoginInput(BaseModel):
@@ -149,6 +155,16 @@ class CommentCreateInput(BaseModel):
     is_internal: bool = False
 
 # ----------------- ROUTES -----------------
+@app.get("/api")
+@app.get("/api/health")
+def api_health():
+    return {
+        "status": "healthy",
+        "service": "NexusHR API",
+        "docs_url": "/docs",
+        "redoc_url": "/redoc"
+    }
+
 @app.post("/api/auth/login")
 def login(data: LoginInput):
     user = users_col.find_one({"$or": [{"username": data.username}, {"email": data.username}], "password": data.password})
