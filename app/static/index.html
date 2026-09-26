@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NexusHR — Corporate Employee Service Portal</title>
+  <meta name="description" content="Next-Generation Enterprise HR Service Portal for Employee Requests, Payroll Queries, Experience Letters, Asset Allocation, and Onboarding." />
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body class="theme-dark">
+  <div id="app" class="app-wrapper">
+    
+    <!-- Top Global Header -->
+    <header class="top-navbar">
+      <div class="nav-left">
+        <div class="brand-logo">
+          <div class="brand-icon-box">
+            <i class="fa-solid fa-layer-group"></i>
+          </div>
+          <div class="brand-text">
+            <span class="brand-title">Nexus<span class="gradient-text">HR</span></span>
+            <span class="brand-subtitle">Service Portal</span>
+          </div>
+        </div>
+        
+        <!-- Navigation Tabs -->
+        <nav class="main-nav-links" id="mainNavLinks">
+          <button class="nav-item active" id="tabMyRequests" onclick="app.switchView('my_requests')">
+            <i class="fa-solid fa-clipboard-list"></i>
+            <span>My Requests</span>
+          </button>
+          <button class="nav-item hr-only" id="tabHrDesk" onclick="app.switchView('hr_desk')" style="display: none;">
+            <i class="fa-solid fa-headset"></i>
+            <span>HR Service Desk</span>
+            <span class="badge-counter" id="hrPendingBadge">0</span>
+          </button>
+          <button class="nav-item hr-only" id="tabAnalytics" onclick="app.switchView('analytics')" style="display: none;">
+            <i class="fa-solid fa-chart-pie"></i>
+            <span>Analytics & SLA</span>
+          </button>
+          <button class="nav-item admin-only" id="tabAdmin" onclick="app.switchView('admin')" style="display: none;">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span>Admin Center</span>
+          </button>
+        </nav>
+      </div>
+
+      <div class="nav-right">
+        <!-- Demo Account Quick Switcher -->
+        <div class="demo-switcher-wrapper">
+          <label class="demo-label"><i class="fa-solid fa-bolt"></i> Quick Role Demo:</label>
+          <div class="demo-btn-group">
+            <button class="demo-chip" onclick="app.quickLogin('john.doe', 'emp123')" title="Employee - John Doe">
+              <i class="fa-solid fa-user"></i> Emp: John
+            </button>
+            <button class="demo-chip" onclick="app.quickLogin('sarah.smith', 'emp123')" title="Employee - Sarah Smith">
+              <i class="fa-solid fa-user"></i> Emp: Sarah
+            </button>
+            <button class="demo-chip hr-chip" onclick="app.quickLogin('elena.hr', 'hr123')" title="HR Specialist - Elena">
+              <i class="fa-solid fa-user-tie"></i> HR: Elena
+            </button>
+            <button class="demo-chip payroll-chip" onclick="app.quickLogin('david.payroll', 'payroll123')" title="Payroll Lead - David">
+              <i class="fa-solid fa-file-invoice-dollar"></i> Payroll
+            </button>
+            <button class="demo-chip it-chip" onclick="app.quickLogin('alex.it', 'it123')" title="IT Specialist - Alex">
+              <i class="fa-solid fa-laptop-code"></i> IT
+            </button>
+            <button class="demo-chip admin-chip" onclick="app.quickLogin('admin', 'admin123')" title="Admin - Marcus">
+              <i class="fa-solid fa-crown"></i> Admin
+            </button>
+          </div>
+        </div>
+
+        <!-- Notification Bell -->
+        <div class="notification-dropdown-container">
+          <button class="icon-btn" id="notifBellBtn" onclick="app.toggleNotifications()">
+            <i class="fa-regular fa-bell"></i>
+            <span class="notification-badge" id="notifCount" style="display: none;">0</span>
+          </button>
+          <div class="notification-menu glass-panel" id="notifMenu" style="display: none;">
+            <div class="notif-header">
+              <h4>Notifications</h4>
+              <button class="btn-text-sm" onclick="app.markAllNotificationsRead()">Mark all read</button>
+            </div>
+            <div class="notif-list" id="notifList">
+              <div class="empty-notif">No new notifications</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- User Profile Pill -->
+        <div class="user-profile-menu">
+          <div class="user-chip" id="userProfileChip" onclick="app.toggleUserMenu()">
+            <div class="avatar-circle" id="userAvatar">JD</div>
+            <div class="user-info-text">
+              <span class="user-name" id="userName">John Doe</span>
+              <span class="user-role-badge" id="userRoleBadge">Employee</span>
+            </div>
+            <i class="fa-solid fa-chevron-down caret-icon"></i>
+          </div>
+          <div class="user-dropdown glass-panel" id="userDropdown" style="display: none;">
+            <div class="dropdown-header">
+              <p class="user-email-text" id="userEmail">john.doe@company.com</p>
+              <p class="user-dept-text" id="userDept">Engineering • EMP-1001</p>
+            </div>
+            <hr class="dropdown-divider" />
+            <button class="dropdown-item" onclick="app.openNewRequestModal()">
+              <i class="fa-solid fa-plus-circle"></i> Raise Request
+            </button>
+            <button class="dropdown-item" onclick="app.openAuthModal('login')">
+              <i class="fa-solid fa-arrow-right-to-bracket"></i> Switch Account
+            </button>
+            <button class="dropdown-item logout-item" onclick="app.logout()">
+              <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Container Body -->
+    <main class="main-content-area" id="mainContent">
+      
+      <!-- ================= VIEW 1: MY REQUESTS (EMPLOYEE VIEW) ================= -->
+      <section id="viewMyRequests" class="view-section active">
+        <!-- Hero Banner with Stats -->
+        <div class="hero-stats-banner glass-panel">
+          <div class="hero-text-side">
+            <h1 class="hero-title">Welcome back, <span id="heroUserName" class="gradient-text">John</span>! 👋</h1>
+            <p class="hero-subtitle">Submit, track, and manage all your corporate HR service requests in one unified portal.</p>
+          </div>
+          <div class="hero-actions-side">
+            <button class="btn-primary btn-glow" onclick="app.openNewRequestModal()">
+              <i class="fa-solid fa-plus"></i>
+              <span>Raise New Request</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Metrics Cards Grid -->
+        <div class="kpi-cards-grid">
+          <div class="kpi-card glass-panel" onclick="app.filterByStatus('')">
+            <div class="kpi-icon-wrap bg-blue"><i class="fa-solid fa-layer-group"></i></div>
+            <div class="kpi-data">
+              <span class="kpi-label">Total Requests</span>
+              <h3 class="kpi-value" id="kpiTotalReqs">0</h3>
+            </div>
+          </div>
+          <div class="kpi-card glass-panel" onclick="app.filterByStatus('submitted')">
+            <div class="kpi-icon-wrap bg-amber"><i class="fa-regular fa-clock"></i></div>
+            <div class="kpi-data">
+              <span class="kpi-label">Under Review</span>
+              <h3 class="kpi-value" id="kpiPendingReqs">0</h3>
+            </div>
+          </div>
+          <div class="kpi-card glass-panel" onclick="app.filterByStatus('in_progress')">
+            <div class="kpi-icon-wrap bg-indigo"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div>
+            <div class="kpi-data">
+              <span class="kpi-label">In Progress</span>
+              <h3 class="kpi-value" id="kpiProgressReqs">0</h3>
+            </div>
+          </div>
+          <div class="kpi-card glass-panel" onclick="app.filterByStatus('resolved')">
+            <div class="kpi-icon-wrap bg-emerald"><i class="fa-solid fa-circle-check"></i></div>
+            <div class="kpi-data">
+              <span class="kpi-label">Resolved / Ready</span>
+              <h3 class="kpi-value" id="kpiResolvedReqs">0</h3>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filter & Search Bar -->
+        <div class="filter-toolbar glass-panel">
+          <div class="search-input-group">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="reqSearchInput" placeholder="Search by ticket ID, title, description..." oninput="app.debounceSearch()" />
+          </div>
+
+          <div class="filter-select-group">
+            <select id="reqCategoryFilter" onchange="app.fetchRequests()">
+              <option value="">All Categories</option>
+              <option value="leave_clarification">📅 Leave Clarification</option>
+              <option value="payroll_query">💰 Payroll Query</option>
+              <option value="experience_letter">📜 Experience Letter</option>
+              <option value="asset_request">💻 Asset Request</option>
+              <option value="onboarding_request">🚀 Onboarding Request</option>
+            </select>
+
+            <select id="reqStatusFilter" onchange="app.fetchRequests()">
+              <option value="">All Statuses</option>
+              <option value="submitted">Submitted</option>
+              <option value="under_review">Under Review</option>
+              <option value="in_progress">In Progress</option>
+              <option value="resolved">Resolved</option>
+              <option value="closed">Closed</option>
+              <option value="rejected">Rejected</option>
+              <option value="on_hold">On Hold</option>
+            </select>
+
+            <select id="reqPriorityFilter" onchange="app.fetchRequests()">
+              <option value="">All Priorities</option>
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="urgent">Urgent</option>
+            </select>
+
+            <button class="btn-icon-secondary" onclick="app.resetFilters()" title="Reset Filters">
+              <i class="fa-solid fa-arrow-rotate-left"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Requests Grid / List -->
+        <div class="requests-grid" id="requestsGrid">
+          <!-- Dynamic Request Cards injected by JS -->
+          <div class="loading-state">
+            <i class="fa-solid fa-circle-notch fa-spin"></i>
+            <p>Loading your service requests...</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= VIEW 2: HR SERVICE DESK (STAFF VIEW) ================= -->
+      <section id="viewHrDesk" class="view-section" style="display: none;">
+        <div class="section-header-row">
+          <div>
+            <h2 class="section-title">HR & Operations Service Desk</h2>
+            <p class="section-desc">Manage all employee tickets, assign staff members, transition request lifecycles, and issue official documents.</p>
+          </div>
+          <div class="desk-quick-filters">
+            <button class="filter-tab active" onclick="app.filterHrDesk('all')">All Tickets</button>
+            <button class="filter-tab" onclick="app.filterHrDesk('my')">Assigned to Me</button>
+            <button class="filter-tab" onclick="app.filterHrDesk('unassigned')">Unassigned</button>
+            <button class="filter-tab urgent-tab" onclick="app.filterHrDesk('overdue')">
+              <i class="fa-solid fa-triangle-exclamation"></i> Overdue SLA
+            </button>
+          </div>
+        </div>
+
+        <!-- HR Desk Table Container -->
+        <div class="table-container glass-panel">
+          <table class="enterprise-table" id="hrDeskTable">
+            <thead>
+              <tr>
+                <th>Ticket ID</th>
+                <th>Category</th>
+                <th>Requester</th>
+                <th>Subject</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Assignee</th>
+                <th>SLA / Age</th>
+                <th class="text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="hrDeskTableBody">
+              <!-- Injected by JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================= VIEW 3: ANALYTICS & SLA ================= -->
+      <section id="viewAnalytics" class="view-section" style="display: none;">
+        <div class="section-header-row">
+          <div>
+            <h2 class="section-title">Executive HR Analytics & SLA Performance</h2>
+            <p class="section-desc">Real-time operational metrics, category volume distribution, resolution velocity, and audit trail.</p>
+          </div>
+          <button class="btn-secondary" onclick="app.fetchAnalytics()">
+            <i class="fa-solid fa-arrows-rotate"></i> Refresh Metrics
+          </button>
+        </div>
+
+        <!-- Executive Analytics Top Metrics Grid -->
+        <div class="analytics-metrics-grid">
+          <div class="metric-box glass-panel">
+            <div class="metric-icon bg-blue"><i class="fa-solid fa-inbox"></i></div>
+            <div class="metric-info">
+              <span class="metric-title">Total Processed</span>
+              <h3 class="metric-val" id="anTotal">0</h3>
+              <span class="metric-sub text-muted">All-time tickets</span>
+            </div>
+          </div>
+          <div class="metric-box glass-panel">
+            <div class="metric-icon bg-amber"><i class="fa-solid fa-hourglass-half"></i></div>
+            <div class="metric-info">
+              <span class="metric-title">Open Backlog</span>
+              <h3 class="metric-val" id="anPending">0</h3>
+              <span class="metric-sub text-warning">Submitted & In Review</span>
+            </div>
+          </div>
+          <div class="metric-box glass-panel">
+            <div class="metric-icon bg-indigo"><i class="fa-solid fa-gears"></i></div>
+            <div class="metric-info">
+              <span class="metric-title">Active In-Flight</span>
+              <h3 class="metric-val" id="anProgress">0</h3>
+              <span class="metric-sub text-info">Being worked on</span>
+            </div>
+          </div>
+          <div class="metric-box glass-panel">
+            <div class="metric-icon bg-emerald"><i class="fa-solid fa-circle-check"></i></div>
+            <div class="metric-info">
+              <span class="metric-title">Resolved & Closed</span>
+              <h3 class="metric-val" id="anResolved">0</h3>
+              <span class="metric-sub text-success">Satisfied requests</span>
+            </div>
+          </div>
+          <div class="metric-box glass-panel">
+            <div class="metric-icon bg-purple"><i class="fa-solid fa-stopwatch"></i></div>
+            <div class="metric-info">
+              <span class="metric-title">Avg Resolution Time</span>
+              <h3 class="metric-val" id="anAvgHours">0.0 hrs</h3>
+              <span class="metric-sub text-muted">Target: &lt; 24.0 hrs</span>
+            </div>
+          </div>
+          <div class="metric-box glass-panel">
+            <div class="metric-icon bg-rose"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <div class="metric-info">
+              <span class="metric-title">SLA Breaches</span>
+              <h3 class="metric-val" id="anOverdue">0</h3>
+              <span class="metric-sub text-danger">Requires immediate action</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Breakdown Section -->
+        <div class="analytics-charts-row">
+          <div class="chart-card glass-panel">
+            <h4 class="card-heading"><i class="fa-solid fa-chart-column"></i> Requests by Category</h4>
+            <div class="cat-bars-list" id="catBarsList">
+              <!-- Injected by JS -->
+            </div>
+          </div>
+
+          <div class="chart-card glass-panel">
+            <h4 class="card-heading"><i class="fa-solid fa-fire"></i> Requests by Priority</h4>
+            <div class="priority-breakdown-list" id="prioBarsList">
+              <!-- Injected by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Global Audit Trail -->
+        <div class="table-container glass-panel mt-4">
+          <div class="table-header-title">
+            <h4><i class="fa-solid fa-clock-rotate-left"></i> Enterprise System Audit Trail</h4>
+            <span class="text-muted text-sm">Real-time immutable log of all operations</span>
+          </div>
+          <table class="enterprise-table" id="analyticsAuditTable">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Actor</th>
+                <th>Action</th>
+                <th>Details</th>
+                <th>IP Address</th>
+              </tr>
+            </thead>
+            <tbody id="analyticsAuditBody">
+              <!-- Injected by JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================= VIEW 4: ADMIN CENTER ================= -->
+      <section id="viewAdmin" class="view-section" style="display: none;">
+        <div class="section-header-row">
+          <div>
+            <h2 class="section-title">Admin Management & Directory</h2>
+            <p class="section-desc">Manage enterprise employee directory, system roles, category SLA thresholds, and system governance.</p>
+          </div>
+          <button class="btn-primary" onclick="app.openNewUserModal()">
+            <i class="fa-solid fa-user-plus"></i> Add New Employee
+          </button>
+        </div>
+
+        <!-- User Directory Table -->
+        <div class="table-container glass-panel">
+          <div class="table-header-title">
+            <h4><i class="fa-solid fa-users"></i> Organization Users & Access Roles</h4>
+          </div>
+          <table class="enterprise-table" id="adminUsersTable">
+            <thead>
+              <tr>
+                <th>Emp ID</th>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Department</th>
+                <th>Designation</th>
+                <th>Role</th>
+                <th>Joined</th>
+              </tr>
+            </thead>
+            <tbody id="adminUsersBody">
+              <!-- Injected by JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ================= MODAL 1: NEW SERVICE REQUEST ================= -->
+    <div class="modal-overlay" id="newRequestModal" style="display: none;">
+      <div class="modal-card modal-lg glass-panel">
+        <div class="modal-header">
+          <div class="modal-title-wrap">
+            <div class="modal-icon-badge"><i class="fa-solid fa-paper-plane"></i></div>
+            <div>
+              <h3 class="modal-title">Submit HR Service Request</h3>
+              <p class="modal-subtitle">Choose a category and provide the necessary details for expedited HR handling.</p>
+            </div>
+          </div>
+          <button class="modal-close-btn" onclick="app.closeModal('newRequestModal')">&times;</button>
+        </div>
+
+        <form id="newRequestForm" onsubmit="app.handleCreateRequest(event)">
+          <div class="modal-body">
+            
+            <!-- Step 1: Category Selector Cards -->
+            <label class="form-label font-bold">1. Select Request Category <span class="required">*</span></label>
+            <div class="category-cards-selector" id="categoryCards">
+              <div class="cat-select-card active" data-cat="leave_clarification" onclick="app.selectFormCategory('leave_clarification')">
+                <div class="cat-card-icon bg-amber"><i class="fa-regular fa-calendar-days"></i></div>
+                <div class="cat-card-title">Leave Clarification</div>
+                <div class="cat-card-desc">Balances, policies, or rejected leave</div>
+              </div>
+
+              <div class="cat-select-card" data-cat="payroll_query" onclick="app.selectFormCategory('payroll_query')">
+                <div class="cat-card-icon bg-emerald"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                <div class="cat-card-title">Payroll Query <span class="lock-pill"><i class="fa-solid fa-lock"></i> Confidential</span></div>
+                <div class="cat-card-desc">Salary, TDS deductions, payslips & bonus</div>
+              </div>
+
+              <div class="cat-select-card" data-cat="experience_letter" onclick="app.selectFormCategory('experience_letter')">
+                <div class="cat-card-icon bg-indigo"><i class="fa-solid fa-award"></i></div>
+                <div class="cat-card-title">Experience Letter</div>
+                <div class="cat-card-desc">Official service certificates & verification</div>
+              </div>
+
+              <div class="cat-select-card" data-cat="asset_request" onclick="app.selectFormCategory('asset_request')">
+                <div class="cat-card-icon bg-blue"><i class="fa-solid fa-laptop"></i></div>
+                <div class="cat-card-title">Asset Request</div>
+                <div class="cat-card-desc">Laptops, 4K monitors, keyboards & access cards</div>
+              </div>
+
+              <div class="cat-select-card" data-cat="onboarding_request" onclick="app.selectFormCategory('onboarding_request')">
+                <div class="cat-card-icon bg-purple"><i class="fa-solid fa-user-plus"></i></div>
+                <div class="cat-card-title">Onboarding Request</div>
+                <div class="cat-card-desc">Credentials, ID cards & new hire setup</div>
+              </div>
+            </div>
+
+            <!-- Dynamic Category Specific Fields Container -->
+            <div class="dynamic-category-fields-box glass-panel mt-3" id="dynamicCategoryFields">
+              <!-- Dynamically populated according to selected category schema -->
+            </div>
+
+            <!-- Step 2: General Request Details -->
+            <div class="form-row mt-3">
+              <div class="form-group col-8">
+                <label class="form-label" for="reqTitle">Request Subject / Summary <span class="required">*</span></label>
+                <input type="text" id="reqTitle" class="form-control" placeholder="Brief summary of your request" required minlength="5" />
+              </div>
+              <div class="form-group col-4">
+                <label class="form-label" for="reqPriority">Priority Level</label>
+                <select id="reqPriority" class="form-control">
+                  <option value="low">Low (General Query)</option>
+                  <option value="medium" selected>Medium (Standard SLA)</option>
+                  <option value="high">High (Time-Sensitive)</option>
+                  <option value="urgent">Urgent (Immediate Blocker)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group mt-3">
+              <label class="form-label" for="reqDescription">Comprehensive Description & Context <span class="required">*</span></label>
+              <textarea id="reqDescription" class="form-control" rows="3" placeholder="Provide complete background, dates, details, or specific requirements..." required minlength="10"></textarea>
+            </div>
+
+            <!-- File Upload Section -->
+            <div class="form-group mt-3">
+              <label class="form-label"><i class="fa-solid fa-paperclip"></i> Supporting Attachment (Optional)</label>
+              <div class="file-dropzone" onclick="document.getElementById('reqAttachmentFile').click()">
+                <i class="fa-solid fa-cloud-arrow-up dropzone-icon"></i>
+                <div class="dropzone-text">
+                  <span class="font-bold">Click to upload document</span> (PDF, DOCX, PNG, JPG, TXT up to 10MB)
+                </div>
+                <span class="file-name-preview" id="fileNamePreview">No file selected</span>
+              </div>
+              <input type="file" id="reqAttachmentFile" style="display: none;" onchange="app.handleFileSelected(event)" />
+            </div>
+
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn-secondary" onclick="app.closeModal('newRequestModal')">Cancel</button>
+            <button type="submit" class="btn-primary btn-glow" id="btnSubmitNewRequest">
+              <i class="fa-solid fa-paper-plane"></i> Submit Request
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ================= MODAL 2: REQUEST DETAIL & WORKFLOW MODAL ================= -->
+    <div class="modal-overlay" id="requestDetailModal" style="display: none;">
+      <div class="modal-card modal-xl glass-panel">
+        <div class="modal-header">
+          <div class="modal-title-wrap">
+            <span class="category-icon-pill" id="detailCatIcon"><i class="fa-solid fa-award"></i></span>
+            <div>
+              <div class="detail-header-top">
+                <span class="ticket-code" id="detailTicketCode">HR-2026-0001</span>
+                <span class="status-badge" id="detailStatusBadge">In Progress</span>
+                <span class="priority-badge" id="detailPriorityBadge">High</span>
+                <span class="confidential-badge" id="detailConfidentialBadge" style="display: none;"><i class="fa-solid fa-lock"></i> Confidential Payroll</span>
+              </div>
+              <h3 class="modal-title mt-1" id="detailTitle">Request Title Here</h3>
+            </div>
+          </div>
+          <button class="modal-close-btn" onclick="app.closeModal('requestDetailModal')">&times;</button>
+        </div>
+
+        <div class="modal-body detail-modal-grid">
+          
+          <!-- LEFT SIDE: Ticket Info, Timeline & Conversation -->
+          <div class="detail-left-column">
+            
+            <!-- Visual Lifecycle Status Tracker -->
+            <div class="workflow-stepper-container glass-panel">
+              <div class="stepper-track">
+                <div class="step-node" id="stepNodeSubmitted">
+                  <div class="step-dot"><i class="fa-solid fa-check"></i></div>
+                  <span class="step-label">Submitted</span>
+                </div>
+                <div class="step-line" id="stepLine1"></div>
+                <div class="step-node" id="stepNodeUnderReview">
+                  <div class="step-dot"><i class="fa-solid fa-eye"></i></div>
+                  <span class="step-label">Under Review</span>
+                </div>
+                <div class="step-line" id="stepLine2"></div>
+                <div class="step-node" id="stepNodeInProgress">
+                  <div class="step-dot"><i class="fa-solid fa-spinner"></i></div>
+                  <span class="step-label">In Progress</span>
+                </div>
+                <div class="step-line" id="stepLine3"></div>
+                <div class="step-node" id="stepNodeResolved">
+                  <div class="step-dot"><i class="fa-solid fa-circle-check"></i></div>
+                  <span class="step-label">Resolved</span>
+                </div>
+                <div class="step-line" id="stepLine4"></div>
+                <div class="step-node" id="stepNodeClosed">
+                  <div class="step-dot"><i class="fa-solid fa-flag-checkered"></i></div>
+                  <span class="step-label">Closed</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Resolution / Rejection Banner if applicable -->
+            <div class="resolution-alert-box" id="detailResolutionBox" style="display: none;">
+              <!-- Dynamic alert box for resolved/rejected -->
+            </div>
+
+            <!-- Request Description & Custom Fields -->
+            <div class="card-sub-panel glass-panel">
+              <h4 class="sub-panel-title"><i class="fa-solid fa-align-left"></i> Description & Details</h4>
+              <p class="description-body-text" id="detailDescription"></p>
+              
+              <!-- Custom Category Data Key-Values -->
+              <div class="custom-fields-grid mt-3" id="detailCustomFields">
+                <!-- Injected by JS -->
+              </div>
+            </div>
+
+            <!-- Attachments & Generated Letters -->
+            <div class="card-sub-panel glass-panel mt-3">
+              <div class="sub-panel-header">
+                <h4 class="sub-panel-title"><i class="fa-solid fa-paperclip"></i> Documents & Attachments</h4>
+                <button class="btn-text-sm" onclick="document.getElementById('extraAttachmentInput').click()">
+                  <i class="fa-solid fa-upload"></i> Upload File
+                </button>
+                <input type="file" id="extraAttachmentInput" style="display: none;" onchange="app.handleUploadExtraAttachment(event)" />
+              </div>
+              <div class="attachments-list" id="detailAttachmentsList">
+                <p class="text-muted text-sm">No documents attached yet.</p>
+              </div>
+            </div>
+
+            <!-- Discussion & Follow-up Messages Thread -->
+            <div class="card-sub-panel glass-panel mt-3">
+              <div class="sub-panel-header">
+                <h4 class="sub-panel-title"><i class="fa-solid fa-comments"></i> Communication Thread</h4>
+                <div class="tab-pills" id="commentFilterTabs">
+                  <button class="pill active" onclick="app.switchCommentTab('public')">Public Conversation</button>
+                  <button class="pill hr-only" id="tabInternalNotes" onclick="app.switchCommentTab('internal')" style="display: none;">
+                    <i class="fa-solid fa-lock"></i> HR Internal Notes
+                  </button>
+                  <button class="pill" onclick="app.switchCommentTab('audit')">Audit Trail</button>
+                </div>
+              </div>
+
+              <!-- Message Stream -->
+              <div class="comment-stream-container" id="detailCommentStream">
+                <!-- Injected by JS -->
+              </div>
+
+              <!-- Comment Input Box -->
+              <form class="comment-input-form mt-3" id="commentPostForm" onsubmit="app.handlePostComment(event)">
+                <div class="comment-composer">
+                  <textarea id="commentInputText" placeholder="Write a reply or follow-up question..." rows="2" required></textarea>
+                  <div class="composer-toolbar">
+                    <div class="hr-only internal-check-wrap" id="internalCheckWrap" style="display: none;">
+                      <label class="checkbox-label">
+                        <input type="checkbox" id="commentIsInternalCheckbox" />
+                        <span><i class="fa-solid fa-shield-halved"></i> Internal HR Note (Invisible to employee)</span>
+                      </label>
+                    </div>
+                    <button type="submit" class="btn-primary btn-sm">
+                      <i class="fa-solid fa-paper-plane"></i> Send
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+          </div>
+
+          <!-- RIGHT SIDE: Workflow Action Controls & Meta Box -->
+          <div class="detail-right-column">
+            
+            <!-- Staff Workflow Action Box (Visible to HR, IT, Payroll, Admin) -->
+            <div class="card-sub-panel action-control-box glass-panel hr-only" id="hrActionControlsBox" style="display: none;">
+              <h4 class="sub-panel-title text-indigo"><i class="fa-solid fa-bolt"></i> HR / Staff Actions</h4>
+              
+              <!-- Quick Status Transition Form -->
+              <div class="form-group mt-2">
+                <label class="form-label text-sm">Update Request Status</label>
+                <select id="actionStatusSelect" class="form-control form-control-sm" onchange="app.handleStatusSelectChange()">
+                  <option value="under_review">Under Review</option>
+                  <option value="in_progress">In Progress</option>
+                  <option value="on_hold">On Hold</option>
+                  <option value="resolved">Mark as Resolved</option>
+                  <option value="rejected">Reject Request</option>
+                  <option value="closed">Close Request</option>
+                </select>
+              </div>
+
+              <div class="form-group mt-2" id="actionReasonGroup" style="display: none;">
+                <label class="form-label text-sm" id="actionReasonLabel">Resolution / Rejection Remarks</label>
+                <textarea id="actionReasonText" class="form-control form-control-sm" rows="2" placeholder="Provide reason or resolution instructions..."></textarea>
+              </div>
+
+              <button class="btn-primary btn-block btn-sm mt-2" onclick="app.submitStatusUpdate()">
+                <i class="fa-solid fa-check"></i> Apply Status Update
+              </button>
+
+              <hr class="panel-divider" />
+
+              <!-- Staff Assignment -->
+              <div class="form-group">
+                <label class="form-label text-sm">Assign to Specialist</label>
+                <div class="input-with-button">
+                  <select id="actionAssignSelect" class="form-control form-control-sm">
+                    <option value="">-- Select Staff Member --</option>
+                  </select>
+                  <button class="btn-secondary btn-sm" onclick="app.submitAssignment()">Assign</button>
+                </div>
+              </div>
+
+              <!-- Special Action: Generate Experience Certificate (for Experience Letter category) -->
+              <div class="special-action-box mt-3" id="actionGenLetterBox" style="display: none;">
+                <label class="form-label text-sm font-bold text-emerald"><i class="fa-solid fa-file-signature"></i> Auto-Generate Certificate</label>
+                <button class="btn-success btn-block btn-sm" onclick="app.generateOfficialExperienceLetter()">
+                  <i class="fa-solid fa-certificate"></i> Generate Official Letter & Resolve
+                </button>
+              </div>
+            </div>
+
+            <!-- Employee Confirmation Box (When status is Resolved) -->
+            <div class="card-sub-panel glass-panel" id="employeeCloseBox" style="display: none;">
+              <h4 class="sub-panel-title text-emerald"><i class="fa-solid fa-thumbs-up"></i> Confirm & Close</h4>
+              <p class="text-sm text-muted">HR has marked this request as resolved. If you are satisfied with the outcome, please close this ticket.</p>
+              <button class="btn-success btn-block btn-sm mt-2" onclick="app.closeRequestAsEmployee()">
+                <i class="fa-solid fa-check-double"></i> Confirm & Close Ticket
+              </button>
+            </div>
+
+            <!-- Requester Profile Summary Card -->
+            <div class="card-sub-panel glass-panel mt-3">
+              <h4 class="sub-panel-title"><i class="fa-solid fa-id-card"></i> Requester Information</h4>
+              <div class="meta-info-list mt-2">
+                <div class="meta-row">
+                  <span class="meta-key">Full Name:</span>
+                  <span class="meta-val font-bold" id="detailRequesterName">John Doe</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-key">Employee ID:</span>
+                  <span class="meta-val" id="detailRequesterEmpId">EMP-1001</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-key">Department:</span>
+                  <span class="meta-val" id="detailRequesterDept">Engineering</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-key">Email:</span>
+                  <span class="meta-val" id="detailRequesterEmail">john.doe@company.com</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Ticket Meta Details -->
+            <div class="card-sub-panel glass-panel mt-3">
+              <h4 class="sub-panel-title"><i class="fa-solid fa-circle-info"></i> Ticket Metadata</h4>
+              <div class="meta-info-list mt-2">
+                <div class="meta-row">
+                  <span class="meta-key">Assigned To:</span>
+                  <span class="meta-val" id="detailAssigneeName">Elena Rostova</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-key">Created:</span>
+                  <span class="meta-val" id="detailCreatedAt">2026-09-20 10:15 UTC</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-key">Last Updated:</span>
+                  <span class="meta-val" id="detailUpdatedAt">2026-09-22 14:30 UTC</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-key">SLA Target:</span>
+                  <span class="meta-val text-info" id="detailSlaTarget">48 Hours</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= MODAL 3: AUTH LOGIN / REGISTRATION ================= -->
+    <div class="modal-overlay" id="authModal" style="display: none;">
+      <div class="modal-card modal-md glass-panel">
+        <div class="modal-header">
+          <div class="modal-title-wrap">
+            <div class="brand-icon-box"><i class="fa-solid fa-lock"></i></div>
+            <div>
+              <h3 class="modal-title" id="authModalTitle">Sign In to NexusHR</h3>
+              <p class="modal-subtitle">Enterprise Role-Based Service Desk Access</p>
+            </div>
+          </div>
+          <button class="modal-close-btn" onclick="app.closeModal('authModal')">&times;</button>
+        </div>
+
+        <div class="auth-tabs-row">
+          <button class="auth-tab-btn active" id="authTabLogin" onclick="app.switchAuthTab('login')">Sign In</button>
+          <button class="auth-tab-btn" id="authTabRegister" onclick="app.switchAuthTab('register')">New Employee Registration</button>
+        </div>
+
+        <!-- Login Form -->
+        <form id="loginForm" class="modal-body" onsubmit="app.handleLoginSubmit(event)">
+          <div class="form-group">
+            <label class="form-label" for="loginUsername">Username or Corporate Email</label>
+            <input type="text" id="loginUsername" class="form-control" placeholder="e.g. john.doe or john.doe@company.com" required />
+          </div>
+          <div class="form-group mt-3">
+            <label class="form-label" for="loginPassword">Password</label>
+            <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required />
+          </div>
+          <div class="quick-credentials-tip mt-3">
+            <p class="text-xs text-muted"><strong>Default Passwords:</strong> Employee (<code>emp123</code>), HR (<code>hr123</code>), Payroll (<code>payroll123</code>), IT (<code>it123</code>), Admin (<code>admin123</code>)</p>
+          </div>
+          <button type="submit" class="btn-primary btn-block btn-glow mt-3">
+            <i class="fa-solid fa-right-to-bracket"></i> Sign In to Portal
+          </button>
+        </form>
+
+        <!-- Register Form -->
+        <form id="registerForm" class="modal-body" onsubmit="app.handleRegisterSubmit(event)" style="display: none;">
+          <div class="form-row">
+            <div class="form-group col-6">
+              <label class="form-label" for="regFullName">Full Name <span class="required">*</span></label>
+              <input type="text" id="regFullName" class="form-control" placeholder="e.g. Jane Doe" required />
+            </div>
+            <div class="form-group col-6">
+              <label class="form-label" for="regUsername">Username <span class="required">*</span></label>
+              <input type="text" id="regUsername" class="form-control" placeholder="e.g. jane.doe" required />
+            </div>
+          </div>
+
+          <div class="form-group mt-2">
+            <label class="form-label" for="regEmail">Corporate Email <span class="required">*</span></label>
+            <input type="email" id="regEmail" class="form-control" placeholder="e.g. jane.doe@company.com" required />
+          </div>
+
+          <div class="form-row mt-2">
+            <div class="form-group col-6">
+              <label class="form-label" for="regDepartment">Department</label>
+              <input type="text" id="regDepartment" class="form-control" placeholder="e.g. Engineering" />
+            </div>
+            <div class="form-group col-6">
+              <label class="form-label" for="regDesignation">Designation</label>
+              <input type="text" id="regDesignation" class="form-control" placeholder="e.g. Software Engineer" />
+            </div>
+          </div>
+
+          <div class="form-row mt-2">
+            <div class="form-group col-6">
+              <label class="form-label" for="regRole">Role</label>
+              <select id="regRole" class="form-control">
+                <option value="employee">Employee</option>
+                <option value="hr">HR Specialist</option>
+                <option value="payroll">Payroll Specialist</option>
+                <option value="it">IT Support</option>
+                <option value="admin">System Admin</option>
+              </select>
+            </div>
+            <div class="form-group col-6">
+              <label class="form-label" for="regPassword">Password <span class="required">*</span></label>
+              <input type="password" id="regPassword" class="form-control" placeholder="Min 6 characters" required minlength="6" />
+            </div>
+          </div>
+
+          <button type="submit" class="btn-primary btn-block btn-glow mt-3">
+            <i class="fa-solid fa-user-plus"></i> Create Account
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
